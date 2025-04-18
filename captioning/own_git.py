@@ -551,8 +551,9 @@ class GITCaptioning(nn.Module):
                         preds = logits.argmax(dim=-1)  # prediction for last token
                     elif selector == "sample":
                         preds = torch.distributions.Categorical(logits=logits).sample()
-                    elif selector == "top5":
-                        top_logits = logits.topk(5, dim=-1)
+                    elif selector[: len("top-k-")] == "top-k-":
+                        k = int(selector[len("top-k-"):])
+                        top_logits = logits.topk(k, dim=-1)
                         idx_sample = torch.distributions.Categorical(
                             logits=top_logits.values
                         ).sample()

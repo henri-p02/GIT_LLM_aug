@@ -867,8 +867,3 @@ TSWLatexianTemp*
 
 data/
 wandb
-*.pt
-github_impls/
-captioning/results/infer*.json
-captioning/results/img_out
-captioning/models
