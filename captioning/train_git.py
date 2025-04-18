@@ -187,7 +187,7 @@ def eval_example(model: torch.nn.Module, fixed_ims, tokenizer, device):
 
     with torch.no_grad():
         with torch.autocast(device_type=device.type):
-            caps = infer_model.infer(fixed_ims, selector="top5")
+            caps = infer_model.infer(fixed_ims)
 
     # normalize images for visualization
     ims = fixed_ims.clone().permute(0, 2, 3, 1)
