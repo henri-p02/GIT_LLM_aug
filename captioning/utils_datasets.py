@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import TypedDict, Union
+from typing import Iterable, TypedDict, Union
 import torch
 from torchvision.transforms import v2
 from torch.utils.data import DataLoader
@@ -466,7 +466,7 @@ def get_caption_dataset(
     
     
 #### For Testing
-class SlicedDataLoader:
+class SlicedDataLoader(Iterable):
     def __init__(self, dataloader: DataLoader, stop: int) -> None:
         self.dataloader = dataloader
         self.stop = stop

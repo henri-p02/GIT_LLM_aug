@@ -117,23 +117,17 @@ def get_optim(config: TrainConfig, model: torch.nn.Module) -> torch.optim.Optimi
 
 def get_scheduler(
     config: TrainConfig, optim: torch.optim.Optimizer, **args
-) -> Union[torch.optim.lr_scheduler.LRScheduler, None]:
+) -> torch.optim.lr_scheduler.LRScheduler:
     """Build learning rate scheduler for the given optimizer"""
 
     if config["lr_scheduler"] == "like_transformer":
         warmup_steps = config["warmup_steps"]
-        assert isinstance(
-            warmup_steps, int
-        ), "LR Scheduler expects 'warmup_steps' to be an int"
         lr_func = lambda step: args["d_model"] ** (-0.5) * min(
             (step + 1) ** (-0.5), (step + 1) * warmup_steps ** (-1.5)
         )
         return torch.optim.lr_scheduler.LambdaLR(optim, lr_func)
     elif config["lr_scheduler"] == "warmup_cosine":
         warmup_steps = config["warmup_steps"]
-        assert isinstance(
-            warmup_steps, int
-        ), "LR Scheduler expects 'warmup_steps' to be an int"
         linear = torch.optim.lr_scheduler.LinearLR(
             optim, 1 / 3, 1, total_iters=warmup_steps
         )
@@ -144,7 +138,7 @@ def get_scheduler(
             optim, [linear, cos], milestones=[warmup_steps]
         )
     elif config["lr_scheduler"] == "constant":
-        return None
+        return torch.optim.lr_scheduler.LambdaLR(optim, lambda x: 1)
     elif config["lr_scheduler"] == "1cycle":
         return torch.optim.lr_scheduler.OneCycleLR(
             optim,
@@ -164,7 +158,7 @@ def train_loop(
     calc_train_loss: Callable[
         [torch.nn.Module, list[torch.Tensor], torch.device], torch.Tensor
     ],
-    train_loader: torch.utils.data.DataLoader,
+    train_loader: Iterable,
     eval_model: Callable[[torch.nn.Module, torch.device], tuple[torch.Tensor, float]],
     device: torch.device,
     cancel_at: Union[int, None] = None,
@@ -376,7 +370,7 @@ def train(
     calc_train_loss: Callable[
         [torch.nn.Module, list[torch.Tensor], torch.device], torch.Tensor
     ],
-    train_loader: torch.utils.data.DataLoader,
+    train_loader: Iterable,
     eval_model: Callable[[torch.nn.Module, torch.device], tuple[torch.Tensor, float]],
     device: torch.device,
     cancel_at: Union[int, None] = None,
@@ -410,7 +404,7 @@ def train(
     finally:
         if hasattr(train_loader, "_iterator"):
             logger.debug("Cleaning up train iterator")
-            del train_loader._iterator
+            del train_loader._iterator #type:ignore
         if rank == 0:
             checkpoint_model(
                 model, optimizer, None, best=False, override=False, wandb_run=wandb_run
