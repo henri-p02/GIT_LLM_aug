@@ -217,7 +217,7 @@ def run(config: Config, cancel_at: int, device=torch.device("cpu"), early_stop=N
     lr_scheduler = training_utils.get_scheduler(
         train_config, optim, d_model=model_config["d_model"]
     )
-    train_loader, test_loader = dataset_utils.get_dataloader(dataset_config, "data")
+    train_loader, test_loader = dataset_utils.get_dataloader(dataset_config, "../data")
 
     criterion = torch.nn.CrossEntropyLoss(
         label_smoothing=train_config["label_smoothing"]
