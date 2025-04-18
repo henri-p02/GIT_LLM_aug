@@ -869,9 +869,6 @@ data/
 wandb
 *.pt
 github_impls/
-*.pickle
-*.pkl
-*.pth
 captioning/results/infer*.json
 captioning/results/img_out
 captioning/models
