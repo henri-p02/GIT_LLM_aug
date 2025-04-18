@@ -866,7 +866,7 @@ TSWLatexianTemp*
 
 
 data/
-wandb/
+wandb
 *.pt
 github_impls/
 *.pickle
