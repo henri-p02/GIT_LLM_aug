@@ -164,7 +164,7 @@ def run(config, cancel_at, device=torch.device('cpu')):
     calc_train_loss = get_loss_fn(model_config, criterion, dataset_config)
     eval_model = get_eval_fn(model_config, train_loader, test_loader)
     
-    training_utils.train(
+    training_utils.run_training(
         model,
         train_config,
         optim,
