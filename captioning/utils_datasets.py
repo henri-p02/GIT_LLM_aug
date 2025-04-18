@@ -253,26 +253,16 @@ def get_coco_karpathy_dataset(path, config: DatasetConfig, tokenizer, world_size
     # mean and std of imagenet
     normalize = v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
-    train_transform = [
+    train_transform = v2.Compose([
         v2.ToImage(),
         v2.ToDtype(torch.uint8, scale=True),
         v2.RandomResizedCrop(224, scale=(0.2, 1)),
-    ]
-
-    llama_augmentation = (config["dataset"] + "-").split("-")[2] #type: ignore
-    if "augmentation" in config and config["augmentation"] is not None:
-        if "flip" in config["augmentation"].lower():
-            train_transform += [v2.RandomHorizontalFlip(0.5)]
-        if "rotate" in config["augmentation"].lower():
-            train_transform += [v2.RandomRotation(25)] # type: ignore
-        if "equilize" in config["augmentation"].lower():
-            train_transform += [v2.RandomEqualize(0.2)]
-        if "perspective" in config["augmentation"].lower():
-            train_transform += [v2.RandomPerspective(0.2, 0.5)]
-
-    train_transform = v2.Compose(
-        train_transform + [v2.ToDtype(torch.float32, scale=True), normalize]
-    )
+    ] +
+    augmentation_pipeline(config) + 
+    [
+        v2.ToDtype(torch.float32, scale=True),
+        normalize
+    ])
 
     test_transform = v2.Compose(
         [
@@ -292,7 +282,9 @@ def get_coco_karpathy_dataset(path, config: DatasetConfig, tokenizer, world_size
         if "grouped" in config and config["grouped"] is not None
         else False
     )
-
+    
+    llama_augmentation = (config["dataset"] + "-").split("-")[2] #type: ignore
+    
     train_set = CocoKarpathyDataset(
         path,
         "train",
@@ -315,6 +307,19 @@ def get_coco_karpathy_dataset(path, config: DatasetConfig, tokenizer, world_size
 
     return train_set, val_set
 
+def augmentation_pipeline(config: DatasetConfig) -> list[v2.Transform]:
+    stages: list[v2.Transform] = []
+    if "augmentation" in config and config["augmentation"] is not None:
+        if "flip" in config["augmentation"].lower():
+            stages += [v2.RandomHorizontalFlip(0.5)]
+        if "rotate" in config["augmentation"].lower():
+            stages += [v2.RandomRotation(25)] # type: ignore
+        if "equilize" in config["augmentation"].lower():
+            stages += [v2.RandomEqualize(0.2)]
+        if "perspective" in config["augmentation"].lower():
+            stages += [v2.RandomPerspective(0.2, 0.5)]
+    return stages
+
 
 def _make_sample(sample, transform, tokenizer):
     img = sample["jpg"].convert("RGB")
@@ -335,14 +340,18 @@ def _make_sample(sample, transform, tokenizer):
 
 
 def get_webdataset(
-    path: str, tokenizer: PreTrainedTokenizer, world_size
+    path: str, config: DatasetConfig, tokenizer: PreTrainedTokenizer, world_size
 ):
     normalize = v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
     train_transform = v2.Compose(
         [
-            v2.RandomResizedCrop(224),
             v2.ToImage(),
+            v2.ToDtype(torch.uint8, scale=True),
+            v2.RandomResizedCrop(224, scale=(0.2, 1)),
+        ] +
+        augmentation_pipeline(config) + 
+        [
             v2.ToDtype(torch.float32, scale=True),
             normalize,
         ]
@@ -363,9 +372,10 @@ def get_webdataset(
 
     test_transform = v2.Compose(
         [
+            v2.ToImage(),
+            v2.ToDtype(torch.uint8, scale=True),
             v2.Resize(224),
             v2.CenterCrop(224),
-            v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
             normalize,
         ]
@@ -438,7 +448,7 @@ def get_caption_dataset(
                 path, config, tokenizer, world_size
             )
         elif config["dataset"] == "CC3m":
-            train_set, val_set = get_webdataset(path, tokenizer, world_size)
+            train_set, val_set = get_webdataset(path, config, tokenizer, world_size)
         else:
             raise NotImplementedError(f'dataset {config["dataset"]} not implemented!')
 
