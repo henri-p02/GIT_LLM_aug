@@ -1,0 +1,133 @@
+{
+    "dataset": {
+        "parameters": {
+            "augmentation": {
+                "value": "flip"
+            },
+            "batch_size": {
+                "value": 256
+            },
+            "dataset": {
+                "value": "COCO-karpathy"
+            },
+            "eval_dataset": {
+                "value": "COCO-karpathy"
+            },
+            "eval_batch_size": {
+                "value": 1024
+            },
+            "grouped": {
+                "value": false
+            },
+            "num_workers": {
+                "value": 24
+            },
+            "prefetch_factor": {
+                "value": 4
+            }
+        }
+    },
+    "model": {
+        "parameters": {
+            "cross_attention": {
+                "value": false
+            },
+            "d_ffn": {
+                "value": 1536
+            },
+            "d_model": {
+                "value": 768
+            },
+            "dropout": {
+                "value": 0.1
+            },
+            "gpt_embedding": {
+                "value": false
+            },
+            "image_encoder": {
+                "value": "CLIP/ViT-B-16"
+            },
+            "max_seq_len": {
+                "value": 30
+            },
+            "num_heads": {
+                "value": 12
+            },
+            "num_layers": {
+                "value": 6
+            },
+            "pos_encoding": {
+                "value": "learned"
+            },
+            "share_embedding": {
+                "value": true
+            },
+            "init_embedding": {
+                "value": null
+            },
+            "torch_attn": {
+                "value": true
+            },
+            "vocab_size": {
+                "value": 28999
+            }
+        }
+    },
+    "train": {
+        "parameters": {
+            "autocast": {
+                "value": true
+            },
+            "clip_grad": {
+                "value": null
+            },
+            "early_stopping": {
+                "value": 16
+            },
+            "eval_interval": {
+                "value": 1000
+            },
+            "label_smoothing": {
+                "value": 0
+            },
+            "log_interval": {
+                "value": 100
+            },
+            "lr_scheduler": {
+                "value": "warmup_cosine"
+            },
+            "num_steps": {
+                "value": 100000
+            },
+            "optimizer": {
+                "parameters": {
+                    "args": {
+                        "parameters": {
+                            "betas": {
+                                "value": [
+                                    0.9,
+                                    0.99
+                                ]
+                            },
+                            "weight_decay": {
+                                "value": 0.1
+                            }
+                        }
+                    },
+                    "base_lr": {
+                        "value": 0.00005
+                    },
+                    "optim": {
+                        "value": "AdamW"
+                    }
+                }
+            },
+            "resulting_batch_size": {
+                "value": 4096
+            },
+            "warmup_steps": {
+                "value": 500
+            }
+        }
+    }
+}
