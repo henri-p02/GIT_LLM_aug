@@ -68,7 +68,7 @@ def visualize_images(
     plt.tight_layout()
 
 
-def cut_caption(captions: torch.Tensor, tokenizer):
+def cut_caption(captions: torch.Tensor, tokenizer: PreTrainedTokenizer):
     """Remove all tokens gerenated after the first EOS token and replace them with padding"""
     eos = tokenizer.eos_token_id
     pad = (
@@ -76,6 +76,8 @@ def cut_caption(captions: torch.Tensor, tokenizer):
         if tokenizer.pad_token_id is not None
         else tokenizer.eos_token_id
     )
+    if pad is None:
+        raise Exception(f"No PAD or EOS token for tokenizer {tokenizer}")
 
     c2 = torch.cat(
         (
