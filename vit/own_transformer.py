@@ -53,7 +53,7 @@ class ScaledDotProductAttention(nn.Module):
 
         For the arguments shape, B denotes the batch size,
         H the number of heads,
-        L the sequence length and d_k the embedding dimension of one head.
+        K the sequence length and d_k the embedding dimension of one head.
 
         Args:
             q (Tensor): Queries of shape (B, H, K, d_k)
@@ -61,7 +61,7 @@ class ScaledDotProductAttention(nn.Module):
             v (Tensor): Values of shape (B, H, K, d_k)
 
         Returns:
-            Tensor: Attention output of shape (B, H, L, d_k)
+            Tensor: Attention output of shape (B, H, K, d_k)
         """
 
         score: torch.Tensor = (q @ k.transpose(2, 3)) / self.sqrt_dk

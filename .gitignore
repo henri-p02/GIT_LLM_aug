@@ -872,5 +872,6 @@ github_impls/
 *.pickle
 *.pkl
 *.pth
-code/captioning/results/infer*.json
-code/captioning/results/img_out
+captioning/results/infer*.json
+captioning/results/img_out
+captioning/models

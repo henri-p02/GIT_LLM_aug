@@ -7,7 +7,6 @@ import dataset_utils
 import torch
 import wandb
 import argparse
-from torchvision.models import VisionTransformer
 import time
 import torchvision.transforms.v2 as v2
 from torch.utils.data import DataLoader
