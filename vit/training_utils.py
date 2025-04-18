@@ -115,6 +115,9 @@ def train_loop(
     accuracy_curve = []
 
     model.to(device)
+    
+    if torch.cuda.get_device_capability(device)[0] >= 7:
+        model.compile()
 
     num_epochs = (
         config["num_steps"] // (len(train_loader) // config["batches_per_step"])
