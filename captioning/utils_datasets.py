@@ -87,7 +87,7 @@ def cut_caption(captions: torch.Tensor, tokenizer: PreTrainedTokenizer):
         ),
         dim=-1,
     )
-    lens = (c2 == eos).max(dim=-1)[1] + 1
+    lens = (c2[:, 1:] == eos).max(dim=-1)[1] + 2 # the first token can never be the end
     pad_mask = ~(
         torch.arange(captions.size(-1), device=captions.device) < lens[:, None]
     )
