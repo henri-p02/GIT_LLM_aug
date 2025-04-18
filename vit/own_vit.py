@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, Union
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -304,7 +304,6 @@ class VitAttentionExtractor:
         self.num_layers = len(model.encoder)
         self.reset()
         for idx, layer in enumerate(model.encoder):
-            layer: TransformerEncoderLayer
             layer.self_attention.attention_layer.dropout.register_forward_hook(
                 self._get_hook(idx)
             )
@@ -316,15 +315,21 @@ class VitAttentionExtractor:
         return hook
 
     def reset(self):
-        self.attentions = [None] * self.num_layers
+        self.attentions: list[Union[None, torch.Tensor]] = [None] * self.num_layers
 
     def attention_result(self):
         return self.attentions
 
     def attention_rollout(self, head_combination="max", ignore_ratio=0.2):
+        if self.attentions[0] is None:
+            raise Exception("Can only call after model forward pass")
+
         tokens = self.attentions[0].size(-1)
         attentions_heads_combined = []
         for att in self.attentions:
+            if att is None:
+                raise Exception("Can only call after model forward pass")
+
             if head_combination == "max":
                 combined = att.max(dim=1)[0]
             elif head_combination == "mean":
@@ -371,7 +376,7 @@ def show_image_attention(
     attention_size = attention.size(-1)
     scale = int(image_size / attention_size)
 
-    mask = cm.jet(attention)
+    mask = cm.jet(attention)  # type: ignore
     if interpolate:
         mask = cv2.resize(mask, (image_size, image_size))
     else:

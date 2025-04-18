@@ -148,7 +148,7 @@ def train_loop(
             if config["autocast"]:
                 with torch.autocast(device_type=device.type):
                     loss = calc_train_loss(model, batch, device)
-                scaler.scale(loss / config["batches_per_step"]).backward()
+                scaler.scale(loss / config["batches_per_step"]).backward()  # type: ignore
             else:
                 loss = calc_train_loss(model, batch, device)
                 (loss / config["batches_per_step"]).backward()
@@ -161,12 +161,12 @@ def train_loop(
 
                 if config["autocast"]:
                     if config["clip_grad"] is not None:
-                        scaler.unscale_(optimizer)
+                        scaler.unscale_(optimizer)  # type: ignore
                         torch.nn.utils.clip_grad_norm_(
                             model.parameters(), config["clip_grad"]
                         )
-                    scaler.step(optimizer)
-                    scaler.update()
+                    scaler.step(optimizer)  # type: ignore
+                    scaler.update()  # type: ignore
                 else:
                     if config["clip_grad"] is not None:
                         torch.nn.utils.clip_grad_norm_(
